@@ -9,7 +9,7 @@ function usage()
     Usage: $(basename $0) <options>  <action>
       <options>:
       -a: app name. The default is hpcc
-      -c: component name, for example, mythor, mydali, etc
+      -c: component name, for example, mythor, mydali, configmgr etc
       -i: container id
       -p: ip
       <action>: 
@@ -30,19 +30,34 @@ function runHPCC()
       cmd="$cmd -c $comp_name"
    fi
    cmd="$cmd $1"
-   eval $cmd
+   eval "$cmd"
 }
 
 function runHPCCCluster()
 {
+   echo ""
+   echo "###############################################"
+   echo "#"
+   echo "# $1 HPCC Cluster ..."
+   echo "#"
+   echo "###############################################"
    cid=$(${SCRIPT_HOME}/cluster_query.sh -q id -g admin)
    cmd="$DOCKER_SUDO docker exec $cid /opt/hpcc-tools/$1_hpcc.sh"
-   eval $cmd
+   echo "$cmd"
+   eval "$cmd"
+
+   echo ""
+   echo "###############################################"
+   echo "#"
+   echo "# Status:"
+   echo "#"
+   echo "###############################################"
+   ${SCRIPT_HOME}/cluster_run.sh status
 }
 
 function stxxxHPCC()
 {
-   if [ -z "$cid" ] && [ -z "$ip" ] 
+   if [ "$action" = "restart" ] || [ -z "$cid" ] && [ -z "$ip" ] 
    then  
        runHPCCCluster $1
        return
@@ -65,7 +80,7 @@ do
          ;;
       d) ipDir=${OPTARG}
          ;;
-      c) comp=${OPTARG}
+      c) comp_name=${OPTARG}
          ;;
       i) cid=${OPTARG}
          ;;
@@ -112,7 +127,14 @@ case $action in
       fi
       ;;
    start)
-      stxxxHPCC start
+      if [ "$comp_name" = "configmgr" ]
+      then
+         cid=$(${SCRIPT_HOME}/cluster_query.sh -q id -g admin)
+         $DOCKER_SUDO docker exec -it $cid /opt/HPCCSystems/sbin/configmgr
+         exit $?
+      else
+         stxxxHPCC start
+      fi
       ;;
    stop)
       stxxxHPCC stop

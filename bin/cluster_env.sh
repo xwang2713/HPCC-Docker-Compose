@@ -6,27 +6,23 @@ SCRIPT_HOME=$(dirname $0)
 function usage()
 {
  cat <<EOF
-    Push environment.xml from admin node to cluster nodes
-    If option -[d|D|s] provided environment.xml will be moved to
-    /etc/HPCCSystems/cluster on admin node first before push
+    Push environment.xml from admin node /etc/HPCCSystems/source/ to cluster nodes
     Usage: $(basename $0) <options>  
       <options>:
       -a: app name. The default is hpcc
       -d: a directory contain environment.xml.xml in admin node
       -D: a directory contain environment.xml.xml in local host
-      -s: the environment.xml is under /etc/HPCCSystems/source/ 
 
 EOF
    exit 2
 }
 
 app_name=hpcc
-copy_from_source=false
 nodeDir=
 hostDir=
 
 # Process command-line parameters
-while getopts "*a:d:D:hs" arg
+while getopts "*a:d:D:h" arg
 do
    case $arg in
       a) appName=${OPTARG}
@@ -34,8 +30,6 @@ do
       d) nodeDir=${OPTARG}
          ;;
       D) comp=${OPTARG}
-         ;;
-      s) copy_from_source=true
          ;;
       h) usage
          ;;
@@ -46,18 +40,9 @@ do
    esac
 done
 
-cid=$(${SCRIPT_HOME}/query_cluster.sh -q id -g admin)
-$DOCKER_SUDO docker exec $cid mkdir -p /etc/HPCCSystems/cluster
+cid=$(${SCRIPT_HOME}/cluster_query.sh -q id -g admin)
 
-if [ "${copy_from_source}" = "true" ]
-then
-   $DOCKER_SUDO docker exec $cid cp /etc/HPCCSystems/source/environment.xml ../cluster/
-   if [ $? -ne 0 ]
-   then
-       echo "Failed to copy environment.xml from /etc/HPCCSystems/source to ../cluster/"
-       exit 1
-   fi
-elif [ -n "$hostDir" ]
+if [ -n "$hostDir" ]
 then
    env_file=${hostDir}/environment.xml
    if [ ! -e "${env_file}" ]
@@ -65,19 +50,19 @@ then
       echo "${env_file} doesn't exist"
       exit 1
    fi 
-   $DOCKER_SUDO docker cp ${env_file} ${cid}:/etc/HPCCSystems/cluster/
+   $DOCKER_SUDO docker cp ${env_file} ${cid}:/etc/HPCCSystems/source/
    if [ $? -ne 0 ]
    then
-       echo "Failed to copy environment.xml from local $hostDir to /etc/HPCCSystems/cluster/"
+       echo "Failed to copy environment.xml from local $hostDir to /etc/HPCCSystems/source/"
        exit 1
    fi
 elif [ -n "$nodeDir" ]
 then
    env_file=${nodeDir}/environment.xml
-   $DOCKER_SUDO docker exec $cid cp $env_file /etc/HPCCSystems/cluster/
+   $DOCKER_SUDO docker exec $cid cp $env_file /etc/HPCCSystems/source/
    if [ $? -ne 0 ]
    then
-       echo "Failed to copy environment.xml from $nodeDir to /etc/HPCCSystems/cluster/"
+       echo "Failed to copy environment.xml from $nodeDir to /etc/HPCCSystems/source/"
        exit 1
    fi
 fi
