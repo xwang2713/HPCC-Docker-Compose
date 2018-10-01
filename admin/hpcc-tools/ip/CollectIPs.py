@@ -67,6 +67,8 @@ class IPsFromDockerNetwork (CollectIPs):
         #print(repr(network_data['Containers']))
         for key in network_data['Containers']:
             node_name = (network_data['Containers'][key]['Name']).split('_')[1].split('.')[0]
+            if node_name.endswith('-endpoint'):
+                continue
             print("node name: " + node_name)
             node_ip = (network_data['Containers'][key]['IPv4Address']).split('/')[0]
             print("node ip: " + node_ip)

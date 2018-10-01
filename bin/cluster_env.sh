@@ -67,4 +67,6 @@ then
    fi
 fi
 
+$DOCKER_SUDO docker exec $cid /opt/hpcc-tools/stop_hpcc.sh
 $DOCKER_SUDO docker exec $cid /opt/hpcc-tools/push_env.sh
+$DOCKER_SUDO docker exec $cid /opt/hpcc-tools/start_hpcc.sh

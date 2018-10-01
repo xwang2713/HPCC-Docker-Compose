@@ -12,7 +12,7 @@ function usage()
     Usage: $(basename $0) <options>
       <options>:
       -a: app name. The default is hpcc
-      -c: component name. DaliServerProcess, Dai, ThorMaster, ThorSlave, etc
+      -c: component name. DaliServerProcess, Dai, ThorMaster, ThorSlave, .* (all) sourceetc
       -d: directory to save collecting ips. 
       -g: ip group by service defined in Docker compose config file. 
           For example: support, thor, thor-mythor, roxie, or hpcc, etc
@@ -63,7 +63,7 @@ function getAdminId()
 function getCompByName()
 {
     getAdminId
-    QUERY_RESULT=$($DOCKER_SUDO docker exec ${QUERY_RESULT} /opt/HPCCSystems/sbin/configgen -env /etc/HPCCSystems/cluster/environment.xml -listall2 | grep $comp)
+    QUERY_RESULT=$($DOCKER_SUDO docker exec ${QUERY_RESULT} /opt/HPCCSystems/sbin/configgen -env /etc/HPCCSystems/source/environment.xml -listall2 | grep $comp)
     
 }
 
