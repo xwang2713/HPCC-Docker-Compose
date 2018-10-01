@@ -25,7 +25,7 @@ EOF
 
 function getIdByIp()
 {
-    cmd="docker ps -q | xargs docker inspect --format \
+    cmd="$DOCKER_SUDO docker ps -q | xargs $DOCKER_SUDO docker inspect --format \
         '{{ .Config.Hostname }} {{ .NetworkSettings.Networks.${network_name}.IPAMConfig.IPv4Address }}' \
          | grep $1 |  cut -d' ' -f1"
     QUERY_RESULT=$(eval $cmd)
@@ -33,7 +33,7 @@ function getIdByIp()
 
 function getIpById()
 {
-    cmd="docker ps -q | xargs docker inspect --format \
+    cmd="SDOCKER_SUDO docker ps -q | xargs $DOCKER_SUDO docker inspect --format \
         '{{ .Config.Hostname }} {{ .NetworkSettings.Networks.${network_name}.IPAMConfig.IPv4Address }}' \
          | grep $1 |  cut -d' ' -f2"
     QUERY_RESULT=$(eval $cmd)
@@ -41,7 +41,7 @@ function getIpById()
 
 function getIpsByGroup()
 {
-    cmd="docker ps -q | xargs docker inspect --format \
+    cmd="$DOCKER_SUDO docker ps -q | xargs $DOCKER_SUDO docker inspect --format \
         '{{ .Name }} {{ .NetworkSettings.Networks.${network_name}.IPAMConfig.IPv4Address }}' \
          | grep \"^/${app_name}_$1\" |  cut -d' ' -f2"
     QUERY_RESULT=$(eval $cmd)
@@ -49,7 +49,7 @@ function getIpsByGroup()
 
 function getHPCCIps()
 {
-    cmd="docker ps -q | xargs docker inspect --format \
+    cmd="$DOCKER_SUDO docker ps -q | xargs $DOCKER_SUDO docker inspect --format \
         '{{ .Name }} {{ .NetworkSettings.Networks.${network_name}.IPAMConfig.IPv4Address }}' \
          | grep -v \"^/${app_name}_admin\""
     QUERY_RESULT=$(eval $cmd | sed "s/\/${app_name}_\([^\.]\+\)\..* /\1 /" | sort )
@@ -57,7 +57,7 @@ function getHPCCIps()
 
 function getAdminId()
 {
-    QUERY_RESULT=$(sudo docker container ls | sed 's/[[:space:]][[:space:]]*/ /g' | grep " ${app_name}_admin\." | cut -d' ' -f1)
+    QUERY_RESULT=$($DOCKER_SUDO docker container ls | sed 's/[[:space:]][[:space:]]*/ /g' | grep " ${app_name}_admin\." | cut -d' ' -f1)
 }
 
 function getCompByName()

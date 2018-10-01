@@ -58,16 +58,16 @@ done
 network_name=$(getNetWorkName)
 echo "Application name: ${app_name},  network: $network_name"
 
-cid=$(sudo docker container ls | sed 's/[[:space:]][[:space:]]*/ /g' | grep " ${app_name}_admin\." | cut -d' ' -f1)
+cid=$($DOCKER_SUDO docker container ls | sed 's/[[:space:]][[:space:]]*/ /g' | grep " ${app_name}_admin\." | cut -d' ' -f1)
 echo "admin container id: ${cid}"
 
-echo "sudo docker network inspect ${network_name} > /tmp/${network_name}.json"
+echo "$DOCKER_SUDO docker network inspect ${network_name} > /tmp/${network_name}.json"
 $DOCKER_SUDO docker network inspect ${network_name} > /tmp/${network_name}.json
 
 cat /tmp/${network_name}.json | sed "s/^\[//; s/^\]//" > /tmp/${network_name}.json.tmp
 mv /tmp/${network_name}.json.tmp /tmp/${network_name}.json
 
-echo "sudo docker container cp /tmp/${network_name}.json $cid:/tmp/"
+echo "$DOCKER_SUDO docker container cp /tmp/${network_name}.json $cid:/tmp/"
 $DOCKER_SUDO docker container cp /tmp/${network_name}.json $cid:/tmp/ 
 
 #$DOCKER_SUDO docker container exec $cid ls -l /tmp/${network_name}.json

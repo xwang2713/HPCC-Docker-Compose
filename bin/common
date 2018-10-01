@@ -1,13 +1,13 @@
 if [ "$RUN_DOCKER_CMD_AS_ROOT" = "false" ]
 then
-    DOCKER_SUDO=sudo
-else
     DOCKER_SUDO=
+else
+    DOCKER_SUDO=sudo
 fi
 
 function getNetWorkName()
 {
-    echo "$(docker network ls | sed 's/[ ]\+/ /g' | cut -d' ' -f2 | grep ${app_name}_)"
+    echo "$($DOCKER_SUDO docker network ls | sed 's/[ ]\+/ /g' | cut -d' ' -f2 | grep ${app_name}_)"
 }
 
 
