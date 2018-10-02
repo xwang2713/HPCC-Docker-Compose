@@ -1,5 +1,8 @@
 
 ## Prerequisites
+Tested on Ubuntu 16.04.
+Need ubuntu 16.04 update 4 or above
+
 Install git 
 ```sh
 sudo apt-get install -y git

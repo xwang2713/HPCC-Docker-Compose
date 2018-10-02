@@ -67,12 +67,20 @@ class IPsFromDockerNetwork (CollectIPs):
         #print(repr(network_data['Containers']))
         for key in network_data['Containers']:
             node_name = (network_data['Containers'][key]['Name']).split('_')[1].split('.')[0]
-            if node_name.endswith('-endpoint'):
-                continue
-            print("node name: " + node_name)
-            node_ip = (network_data['Containers'][key]['IPv4Address']).split('/')[0]
-            print("node ip: " + node_ip)
-            self.write_to_file(self._out_dir, node_name, node_ip + ";")
+            if ( "-admin"     in node_name or
+                 "-dali"      in node_name or
+                 "-esp"       in node_name or
+                 "-thor"      in node_name or
+                 "-roxie"     in node_name or
+                 "-eclcc"     in node_name or
+                 "-scheduler" in node_name or
+                 "-backup"    in node_name or
+                 "-support"   in node_name or
+                 "-node"      in node_name): 
+                print("node name: " + node_name)
+                node_ip = (network_data['Containers'][key]['IPv4Address']).split('/')[0]
+                print("node ip: " + node_ip)
+                self.write_to_file(self._out_dir, node_name, node_ip + ";")
 
     def usage(self):
         print("Usage IPsFromDockerNetwork.py [option(s)]\n")
