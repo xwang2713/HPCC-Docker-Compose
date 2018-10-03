@@ -67,16 +67,18 @@ class IPsFromDockerNetwork (CollectIPs):
         #print(repr(network_data['Containers']))
         for key in network_data['Containers']:
             node_name = (network_data['Containers'][key]['Name']).split('_')[1].split('.')[0]
-            if ( "-admin"     in node_name or
-                 "-dali"      in node_name or
-                 "-esp"       in node_name or
-                 "-thor"      in node_name or
-                 "-roxie"     in node_name or
-                 "-eclcc"     in node_name or
-                 "-scheduler" in node_name or
-                 "-backup"    in node_name or
-                 "-support"   in node_name or
-                 "-node"      in node_name): 
+            if ( node_name.startswith('admin')     or
+                 node_name.startswith('dali')      or
+                 node_name.startswith('esp')       or
+                 node_name.startswith('thor')      or
+                 node_name.startswith('roxie')     or
+                 node_name.startswith('eclcc')     or
+                 node_name.startswith('scheduler') or
+                 node_name.startswith('backup')    or
+                 node_name.startswith('sasha')     or
+                 node_name.startswith('dropzone')  or
+                 node_name.startswith('support')   or
+                 node_name.startswith('node' ): 
                 print("node name: " + node_name)
                 node_ip = (network_data['Containers'][key]['IPv4Address']).split('/')[0]
                 print("node ip: " + node_ip)
