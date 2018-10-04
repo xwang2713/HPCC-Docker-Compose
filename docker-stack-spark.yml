@@ -35,6 +35,12 @@ services:
       replicas: 2
     networks:
       - ovnet
+  spark:
+    image: hpccsystems/hpcc:7-rc
+    deploy:
+      replicas: 1
+    networks:
+      - ovnet
   visualizer:
     image: dockersamples/visualizer:stable
     ports:

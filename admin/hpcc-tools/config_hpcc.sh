@@ -140,9 +140,13 @@ function create_complex_envxml()
        -supportnodes ${support_nodes} -roxieondemand 1 \
        -ipfile ${ipDir}/support" 
 
+   spark_entry=$(grep sparkthor ${HPCC_HOME}/componentfiles/configxml/buildset.xml)
+   [ "$spark_entry" = "sparkthor" ] && cmd="$cmd -rmv spark#mysparkthor:Instance@netAddress=."
+
    echo "$cmd" 
    eval "$cmd"
     
+   
    cp   ${wkDir}/env_base.xml ${wkDir}/env_dali.xml
 
    if [ -e ${ipDir}/dali ]
@@ -163,14 +167,15 @@ function create_complex_envxml()
       cp ${wkDir}/env_dali.xml  ${wkDir}/env_esp0.xml
    fi
 
-   add_esp_to_envxml ${wkDir}/env_dali.xml ${wkDir}/env_esp.xml
+   add_comp_to_envxml esp myesp ${wkDir}/env_esp0.xml ${wkDir}/env_esp.xml
    add_roxie_to_envxml ${wkDir}/env_esp.xml ${wkDir}/env_roxie.xml
    add_thor_to_envxml ${wkDir}/env_roxie.xml ${wkDir}/env_thor.xml
-   add_eclcc_to_envxml ${wkDir}/env_thor.xml ${wkDir}/env_eclcc.xml
-   add_scheduler_to_envxml ${wkDir}/env_eclcc.xml ${wkDir}/env_scheduler.xml
+   add_comp_to_envxml eclcc myeclccserver ${wkDir}/env_thor.xml ${wkDir}/env_eclcc.xml
+   add_comp_to_envxml scheduler myscheduler ${wkDir}/env_eclcc.xml ${wkDir}/env_scheduler.xml
+   add_comp_to_envxml spark mysparkthor ${wkDir}/env_scheduler.xml ${wkDir}/env_spark.xml
 
    # Create topology
-   create_topology ${wkDir}/env_scheduler.xml ${wkDir}/env_topo.xml
+   create_topology ${wkDir}/env_spark.xml ${wkDir}/env_topo.xml
 
    # Override attributes
    cmd="$SUDOCMD ${HPCC_HOME}/sbin/envgen2 -env-in ${wkDir}/env_topo.xml \
@@ -180,94 +185,43 @@ function create_complex_envxml()
        -override thor,@replicateOutputs,true \
        -override esp,@method,htpasswd "
 
-
-
    echo "$cmd" 
    eval "$cmd"
 }
 
-function add_esp_to_envxml()
+function add_comp_to_envxml()
 {
-    env_in=$1
-    env_out=$2
+    _comp=$1
+    _default_name=$2
+    env_in=$3
+    env_out=$4
 
     # If nothing to process
     cp $env_in  $env_out
 
-    [ ! -e ${ipDir}/esp* ] && return
+    [ ! -e ${ipDir}/${_comp}* ] && return
 
     index=1
     env_in_tmp=${env_in}
     env_out_tmp=${wkDir}/tmp/env_out_tmp_${index}.xml
-    ls ${ipDir} | grep esp* | while read ip_file
+    ls ${ipDir} | grep ${_comp}* | while read ip_file
     do
         name=$(echo ${ip_file} | cut -d '-' -s -f 2) 
-        [ -z "$name" ] && name=myesp
-        echo "$SUDOCMD ${HPCC_HOME}/sbin/envgen2 -env-in $env_in_tmp -env-out $env_out_tmp \
-             -add-node esp#${name}@ipfile=${ipDir}/${ip_file}"
-        $SUDOCMD ${HPCC_HOME}/sbin/envgen2 -env-in $env_in_tmp -env-out $env_out_tmp \
-             -add-node esp#${name}@ipfile=${ipDir}/${ip_file}
+        [ -z "$name" ] && name=$_default_name
+        cmd="$SUDOCMD ${HPCC_HOME}/sbin/envgen2 -env-in $env_in_tmp -env-out $env_out_tmp \
+             -add-node ${_comp}#${name}@ipfile=${ipDir}/${ip_file}"
 
-        cp ${env_out_tmp}  ${env_out}
+        comp_opts_var="$(echo "$ip_file" | tr 'a-z' 'A-Z' | tr '-' '_')_OPTS" 
+        comp_opts=${!comp_opts_var}
+        [ -n "comp_opts" ] && cmd="$cmd -mod sw:${_comp}#${name}@${comp_opts}" 
 
-        index=$(expr $index \+ 1)
-        env_in_tmp=${env_out_tmp}
-        env_out_tmp=${wkDir}/tmp/env_out_tmp_${index}.xml
-    done 
-}
+        inst_comp_opts_var="INSTANCE_${comp_opts_var}" 
+        inst_comp_opts=${!inst_comp_opts_var}
+        [ -n "inst_comp_opts" ] && cmd="$cmd -mod sw:${_comp}#${name}:instance@${inst_comp_opts}" 
 
-function add_eclcc_to_envxml()
-{
-    env_in=$1
-    env_out=$2
-
-    # If nothing to process
-    cp $env_in  $env_out
-
-    [ ! -e ${ipDir}/eclcc* ] && return
-
-    index=1
-    env_in_tmp=${env_in}
-    env_out_tmp=${wkDir}/tmp/env_out_tmp_${index}.xml
-    ls ${ipDir} | grep eclcc* | while read ip_file
-    do
-        name=$(echo $ip_file | cut -d '-' -s -f 2) 
-        [ -z "$name" ] && name=myeclccserver
-        echo "$SUDOCMD ${HPCC_HOME}/sbin/envgen2 -env-in $env_in_tmp -env-out $env_out_tmp \
-             -add-node eclcc#${name}@ipfile=${ipDir}/${ip_file}"
-        $SUDOCMD ${HPCC_HOME}/sbin/envgen2 -env-in $env_in_tmp -env-out $env_out_tmp \
-             -add-node eclcc#${name}@ipfile=${ipDir}/${ip_file}
-
-        cp ${env_out_tmp}  ${env_out}
-
-        index=$(expr $index \+ 1)
-        env_in_tmp=${env_out_tmp}
-        env_out_tmp=${wkDir}/tmp/env_out_tmp_${index}.xml
-    done 
-}
-
-function add_scheduler_to_envxml()
-{
-    env_in=$1
-    env_out=$2
-
-    # If nothing to process
-    cp $env_in  $env_out
-
-    [ ! -e ${ipDir}/scheduler* ] && return
-
-    index=1
-    env_in_tmp=${env_in}
-    env_out_tmp=${wkDir}/tmp/env_out_tmp_${index}.xml
-    ls ${ipDir} | grep scheduler* | while read ip_file
-    do
-        name=$(echo ${ip_file} | cut -d '-' -s -f 2) 
-        [ -z "$name" ] && name=myscheduler
-        echo "$SUDOCMD ${HPCC_HOME}/sbin/envgen2 -env-in $env_in_tmp -env-out $env_out_tmp \
-             -add-node scheduler#${name}@ipfile=${ipDir}/${ip_file}"
-        $SUDOCMD ${HPCC_HOME}/sbin/envgen2 -env-in $env_in_tmp -env-out $env_out_tmp \
-             -add-node scheduler#${name}@ipfile=${ipDir}/${ip_file}
-
+        echo "$cmd"
+        eval "$cmd"
+        
         cp ${env_out_tmp}  ${env_out}
 
         index=$(expr $index \+ 1)

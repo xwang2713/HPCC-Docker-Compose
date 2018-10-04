@@ -33,8 +33,8 @@ services:
      #- TOPLOGY=<topology 1 name>%<cluster 1 name>:<process 1>@<process name>,<process 2>@<process name>...;<cluster 2 name>:...# <topology 2 name>%...
      #- TOPOLOGY=topology%thor:EclAgentProcess@myeclagent,EclCCServerProcess@myeclccserver,ThorCluster@mythor,EclScheduerProcess@myeclscheduler;roxie:RoxieCluster@myroxie,EclCCServerProcess@myeclccserver,EclSchedulerProcess@myeclscheduler;thor_roxie:EclCCServerProcess@myeclccserver,Thorcluster@mythor,RoxieCluster@myroxie,EclSchedulerProcess@myeclscheduler
       - TOPOLOGY=default
-     #- NODE_GROUP=<node group name>:<thor cluster 1 name>,<thor cluster 2 name>,..;<node group name 2>...
-     #- NODE_GROUP=thor_group_1:mythor
+     #- THOR_MYTHOR_OPTS="nodeGroup=mythor"
+     #- INSTANCE_THOR_MYTHOR_OPTS="xxx=yyy"
     networks:
       - ovnet
     volumes:
