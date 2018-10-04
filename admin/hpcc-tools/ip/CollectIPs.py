@@ -79,7 +79,7 @@ class IPsFromDockerNetwork (CollectIPs):
                  node_name.startswith('dropzone')  or
                  node_name.startswith('support')   or
                  node_name.startswith('spark')     or
-                 node_name.startswith('node' ): 
+                 node_name.startswith('node')): 
                 print("node name: " + node_name)
                 node_ip = (network_data['Containers'][key]['IPv4Address']).split('/')[0]
                 print("node ip: " + node_ip)
