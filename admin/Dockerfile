@@ -7,8 +7,8 @@ RUN ln -s /usr/bin/python3.5 /usr/bin/python3
 
 RUN groupadd hpcc && useradd -s /bin/bash -r -m -d /home/hpcc -g hpcc -c "hpcc Runtime User" hpcc
 
-ENV VERSION 7.0.0
-ENV FULL_VERSION 7.0.0-rc2
+ENV VERSION 7.0.14
+ENV FULL_VERSION 7.0.14-1
 #ENV PLATFORM_DOWNLOAD_MD5  a62b43a1ef1ecf7d8d702d9033e9cf39
 ENV PLATFORM_PACKAGE hpccsystems-platform-community_${FULL_VERSION}xenial_amd64.deb
 
