@@ -3,7 +3,7 @@
 Tested on Ubuntu 16.04.
 Need ubuntu 16.04 update 4 or above
 
-Install git 
+Install git
 ```sh
 sudo apt-get install -y git
 ```
@@ -26,49 +26,55 @@ To list node joined:
 sudo docker node ls
 ```
 
-##  Get the App 
+##  Get the App
 Get HPCC-Docker-Stack to your host Linux:
 ```sh
-git clone https://github.com/xwang2713/HPCC-Docker-Stack
+git clone https://github.com/hpcc-systems/hpcc-docker
 ```
 
 ##  Run HPCC Cluster
 
 ### Start a HPCC Cluster
-cd to HPCC-Docker-Stack and run 
+cd to hpcc-docker and run
 ```sh
-sudo docker stack deploy -c docker-compose-3.yml hpcc
+sudo docker stack deploy -c docker-stack.yml hpcc
 ```
 "hpcc" is the app name. You can give other name.
+
+Wait for all containers start...
+```sh
+sudo docker service ls
+```
+All service with prefix "hpcc_" should be started by checking "REPLICAS"  column.
 
 To configure the cluster to go bin/:
 ```sh
 ./cluster_config.sh
 ```
 If it deploys successfully it should print all HPCC node's running status
-To access ECLWatch: http://localhost:8010 
+To access ECLWatch: http://localhost:8010
 
 There are several help scripts under bin/
 ### cluster_config.sh
-Configure HPCC Cluster, setup ansible hosts file and stop/start HPCC cluster 
+Configure HPCC Cluster, setup ansible hosts file and stop/start HPCC cluster
 
 ### cluster_query.sh
 Query entries of Docker/HPCC cluster
-For example list all components defined in environmentx.ml:  
+For example list all components defined in environmentx.ml:
 ```sh
-./cluster_query -q comp -c .*
+./cluster_query.sh -q comp -c .*
 ```
 Get node ips of HPCC cluster:
 ```sh
-./cluster_query -q ip -g HPCC
+./cluster_query.sh -q ip -g HPCC
 ```
 Get docker container id from ip
 ```sh
-./cluster_query -q id -p <ip>
+./cluster_query.sh -q id -p <ip>
 ```
 Get docker container id for admin node
 ```sh
-./cluster_query -q id -g admin
+./cluster_query.sh -q id -g admin
 ```
 
 You can use <id> to access the container:
@@ -109,7 +115,7 @@ To start configmgr:
 ```
 Type Ctrl C to stop it
 
-Replace "hpcc" with your app name if is different. 
+Replace "hpcc" with your app name if is different.
 
 ### cluster_env.sh
 This will :
@@ -119,7 +125,7 @@ This will :
 
 
 ### Stop a HPCC Cluster
-cd to HPCC-Docker-Stack and run 
+cd to HPCC-Docker-Stack and run
 ```sh
 sudo docker stack rm hpcc
 ```
